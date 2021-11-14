@@ -1,0 +1,23 @@
+{
+  "name": "testing-library-react-router",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:kevinbarabash/testing-library-react-router.git",
+  "author": "Kevin Barabash <kevinb7@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-react": "^7.16.0",
+    "@testing-library/dom": "^8.11.1",
+    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/react": "^12.1.2",
+    "babel-jest": "^27.3.1",
+    "jest": "^27.3.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.0.2"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
