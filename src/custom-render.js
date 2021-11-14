@@ -1,24 +1,25 @@
 import * as React from "react";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { MemoryRouter, useHistory, useLocation } from "react-router-dom";
 import { render, queries } from "@testing-library/react";
 
-const LocationTracker = ({ history, locationRef }) => {
+const RouteTracker = ({ historyRef, locationRef }) => {
   const location = useLocation();
+  const history = useHistory();
 
   locationRef.current = location;
-  history.push(location);
+  historyRef.current = history;
 
   return null;
 };
 
 export const customRender = (children) => {
-  const history = [];
+  const historyRef = React.createRef();
   const locationRef = React.createRef();
 
   const options = {
     queries: {
       ...queries,
-      getHistory: () => [...history], // return a copy of the history at that point in time
+      getHistory: () => historyRef.current,
       getLocation: () => locationRef.current,
     },
   };
@@ -26,7 +27,7 @@ export const customRender = (children) => {
   return render(
     <MemoryRouter>
       {children}
-      <LocationTracker history={history} locationRef={locationRef} />
+      <RouteTracker historyRef={historyRef} locationRef={locationRef} />
     </MemoryRouter>,
     options
   );
