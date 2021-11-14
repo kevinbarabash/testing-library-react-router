@@ -2,13 +2,15 @@
  * @jest-environment jsdom
  */
 import * as React from "react";
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import { StaticRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import "jest-location-mock";
 
 import { customRender } from "./custom-render.js";
 import { Example } from "./example.js";
+import { getElements } from "./fiber-utils.js";
 
 const urlFromLocation = (location) => {
   const { pathname, search, hash } = location;
@@ -35,7 +37,9 @@ expect.extend({
 describe("Example", () => {
   test("clicking a link to /foo should redirect to /bar", async () => {
     // Arrange
-    const { getHistory, getLocation, getAllLocations } = customRender(<Example />);
+    const { getHistory, getLocation, getAllLocations } = customRender(
+      <Example />
+    );
 
     // Act
     userEvent.click(screen.queryByRole("link"));
@@ -57,7 +61,9 @@ describe("Example", () => {
 
   test("history.push('/foo') should redirect to /bar", async () => {
     // Arrange
-    const { getHistory, getLocation, getAllLocations } = customRender(<Example />);
+    const { getHistory, getLocation, getAllLocations } = customRender(
+      <Example />
+    );
 
     // Act
     userEvent.click(screen.queryByRole("button"));
@@ -86,5 +92,41 @@ describe("Example", () => {
 
     // Assert
     expect(window.location.pathname).toEqual("/foo");
+  });
+
+  test("access react instances from DOM nodes", async () => {
+    // Arrange
+    const { container } = render(
+      <StaticRouter location={{ pathname: "/foo" }}>
+        <Example />
+      </StaticRouter>
+    );
+
+    // Act
+    const [fiberKey] = Object.keys(container.firstElementChild);
+    const fiber = container.firstElementChild[fiberKey];
+
+    const elements = getElements(fiber);
+    expect(elements).toEqual([
+      { name: "div", props: {}, state: [] },
+      { name: "Switch", props: {}, state: [] },
+      {
+        name: "Route",
+        props: {
+          computedMatch: {
+            isExact: true,
+            params: {},
+            path: "/foo",
+            url: "/foo",
+          },
+          location: { hash: "", pathname: "/foo", search: "" },
+          path: "/foo",
+        },
+        state: [],
+      },
+      { name: "Redirect", props: { to: "/bar?baz=123#qux" }, state: [] },
+      { name: "Counter", props: {}, state: [0, 1] },
+      { name: "div", props: {}, state: [] },
+    ]);
   });
 });
