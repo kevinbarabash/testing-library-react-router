@@ -10,10 +10,13 @@ export const Example = () => {
     <div>
       <Switch>
         <Route path="/foo">
+          <div>foo route</div>
           <Redirect to="/bar?baz=123#qux" />
+        </Route>
+        <Route path="/bar">
+          <div>bar route</div>
           <Counter />
         </Route>
-        <Route path="/bar">bar route</Route>
         <Route path="/">
           <Link to="/foo">foo</Link>
           <button onClick={() => history.push("/foo")}>foo</button>

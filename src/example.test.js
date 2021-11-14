@@ -2,15 +2,14 @@
  * @jest-environment jsdom
  */
 import * as React from "react";
-import { render, screen } from "@testing-library/react";
-import { StaticRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
+import { MemoryRouter, StaticRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import "jest-location-mock";
 
 import { customRender } from "./custom-render.js";
 import { Example } from "./example.js";
-import { getElements } from "./fiber-utils.js";
 
 const urlFromLocation = (location) => {
   const { pathname, search, hash } = location;
@@ -18,8 +17,8 @@ const urlFromLocation = (location) => {
 };
 
 expect.extend({
-  toEqualUrl(recieved, actual) {
-    const url = urlFromLocation(recieved);
+  toEqualUrl(received, actual) {
+    const url = urlFromLocation(received);
     if (url === actual) {
       return {
         message: () => `expected ${url} not to equal ${actual}`,
@@ -32,13 +31,20 @@ expect.extend({
       };
     }
   },
+  toHaveProps(received, actual) {
+    return {
+      message: () => this.utils.diff(received.props, actual),
+      pass: this.equals(received.props, actual),
+    };
+  },
 });
 
 describe("Example", () => {
   test("clicking a link to /foo should redirect to /bar", async () => {
     // Arrange
     const { getHistory, getLocation, getAllLocations } = customRender(
-      <Example />
+      <Example />,
+      { wrapper: MemoryRouter }
     );
 
     // Act
@@ -62,7 +68,8 @@ describe("Example", () => {
   test("history.push('/foo') should redirect to /bar", async () => {
     // Arrange
     const { getHistory, getLocation, getAllLocations } = customRender(
-      <Example />
+      <Example />,
+      { wrapper: MemoryRouter }
     );
 
     // Act
@@ -94,39 +101,42 @@ describe("Example", () => {
     expect(window.location.pathname).toEqual("/foo");
   });
 
-  test("access react instances from DOM nodes", async () => {
+  test("getByComponentName('Redirect')", async () => {
     // Arrange
-    const { container } = render(
-      <StaticRouter location={{ pathname: "/foo" }}>
-        <Example />
-      </StaticRouter>
-    );
+    const { getByComponentName } = customRender(<Example />, {
+      wrapper: ({ children }) => (
+        <StaticRouter location={{ pathname: "/foo" }}>{children}</StaticRouter>
+      ),
+    });
+
+    // Assert
+    expect(getByComponentName("Redirect")).toHaveProps({
+      to: "/bar?baz=123#qux",
+    });
+  });
+
+  test("getByComponentName('Counter')", async () => {
+    // Arrange
+    const { getByComponentName } = customRender(<Example />, {
+      wrapper: MemoryRouter,
+    });
 
     // Act
-    const [fiberKey] = Object.keys(container.firstElementChild);
-    const fiber = container.firstElementChild[fiberKey];
+    userEvent.click(screen.queryByRole("button"));
 
-    const elements = getElements(fiber);
-    expect(elements).toEqual([
-      { name: "div", props: {}, state: [] },
-      { name: "Switch", props: {}, state: [] },
-      {
-        name: "Route",
-        props: {
-          computedMatch: {
-            isExact: true,
-            params: {},
-            path: "/foo",
-            url: "/foo",
-          },
-          location: { hash: "", pathname: "/foo", search: "" },
-          path: "/foo",
-        },
-        state: [],
-      },
-      { name: "Redirect", props: { to: "/bar?baz=123#qux" }, state: [] },
-      { name: "Counter", props: {}, state: [0, 1] },
-      { name: "div", props: {}, state: [] },
-    ]);
+    // Assert
+    expect(getByComponentName("Counter")).toBeTruthy();
+  });
+
+  test("getAllByComponentName", async () => {
+    // Arrange
+    const { getAllByComponentName } = customRender(<Example />, {
+      wrapper: ({ children }) => (
+        <StaticRouter location={{ pathname: "/foo" }}>{children}</StaticRouter>
+      ),
+    });
+
+    // Assert
+    expect(getAllByComponentName("div")).toHaveLength(2);
   });
 });

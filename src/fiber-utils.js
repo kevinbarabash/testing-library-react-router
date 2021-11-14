@@ -4,7 +4,7 @@ export function walk(node, callback) {
         callback(name, node);
     } else if (node.type && typeof node.type === "object") {
         if (node.type.render) {
-            const name = node.type.render.displayName;
+            const name = node.type.displayName;
             callback(name, node);
         } else if (node.type._context) {
             // skip contexts
@@ -22,9 +22,11 @@ export function walk(node, callback) {
     }
 }
 
-export const getElements = (root) => {
+export const getElements = (container) => {
+    const [fiberKey] = Object.keys(container.firstElementChild);
+    const fiber = container.firstElementChild[fiberKey];
     const elements = [];
-    walk(root, (name, node) => {
+    walk(fiber, (name, node) => {
         const {children, ...props} = node.memoizedProps;
         const state = [];
         let memoizedState = node.memoizedState;
