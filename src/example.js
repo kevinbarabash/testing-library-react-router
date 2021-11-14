@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Redirect, Link, Route, Switch, useHistory } from "react-router-dom";
 
-import { Counter } from "./counter.js";
+import { Counter, ClassCounter } from "./counter.js";
 
 export const Example = () => {
   const history = useHistory();
@@ -16,6 +16,7 @@ export const Example = () => {
         <Route path="/bar">
           <div>bar route</div>
           <Counter />
+          <ClassCounter />
         </Route>
         <Route path="/">
           <Link to="/foo">foo</Link>

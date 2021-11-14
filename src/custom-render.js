@@ -35,9 +35,21 @@ export const customRender = (children, options) => {
         // - throw if there's no results
         return element;
       },
+      getByComponent: (screen, component) => {
+        const elements = getElements(container);
+        const element = elements.find(elem => elem.component === component);
+        // TODO:
+        // - throw if there's more than one result
+        // - throw if there's no results
+        return element;
+      },
       getAllByComponentName: (screen, name) => {
         const elements = getElements(container);
         return elements.filter(elem => elem.name === name);
+      },
+      getAllByComponent: (screen, component) => {
+        const elements = getElements(container);
+        return elements.filter(elem => elem.component === component);
       },
     },
   };

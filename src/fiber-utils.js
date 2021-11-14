@@ -1,17 +1,22 @@
+import {Switch} from "react-router-dom";
 export function walk(node, callback) {
     if (typeof node.type === "function") {
         const name = node.type.name;
-        callback(name, node);
+        const component = node.type;
+        callback(node, name, component);
     } else if (node.type && typeof node.type === "object") {
         if (node.type.render) {
             const name = node.type.displayName;
-            callback(name, node);
+            callback(node, name);
         } else if (node.type._context) {
             // skip contexts
         }
     } else if (typeof node.type === "string") {
         const name = node.type;
-        callback(name, node);
+        callback(node, name);
+    } else {
+        // text node
+        const {stateNode, return: returnVal, sibling, ...rest} = node;
     }
 
     if (node.child) {
@@ -26,7 +31,7 @@ export const getElements = (container) => {
     const [fiberKey] = Object.keys(container.firstElementChild);
     const fiber = container.firstElementChild[fiberKey];
     const elements = [];
-    walk(fiber, (name, node) => {
+    walk(fiber, (node, name, component) => {
         const {children, ...props} = node.memoizedProps;
         const state = [];
         let memoizedState = node.memoizedState;
@@ -36,7 +41,7 @@ export const getElements = (container) => {
             memoizedState = memoizedState.next;
         }
         elements.push({
-            name, props, state,
+            name, props, state, component,
         });
     });
     return elements;

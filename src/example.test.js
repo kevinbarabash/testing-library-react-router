@@ -10,6 +10,7 @@ import "jest-location-mock";
 
 import { customRender } from "./custom-render.js";
 import { Example } from "./example.js";
+import { Counter, ClassCounter } from "./counter.js";
 
 const urlFromLocation = (location) => {
   const { pathname, search, hash } = location;
@@ -126,6 +127,32 @@ describe("Example", () => {
 
     // Assert
     expect(getByComponentName("Counter")).toBeTruthy();
+  });
+
+  test("getByComponent(Counter)", async () => {
+    // Arrange
+    const { getByComponent } = customRender(<Example />, {
+      wrapper: MemoryRouter,
+    });
+
+    // Act
+    userEvent.click(screen.queryByRole("button"));
+
+    // Assert
+    expect(getByComponent(Counter)).toBeTruthy();
+  });
+
+  test("getByComponent(ClassCounter)", async () => {
+    // Arrange
+    const { getAllByComponent } = customRender(<Example />, {
+      wrapper: MemoryRouter,
+    });
+
+    // Act
+    userEvent.click(screen.queryByRole("button"));
+
+    // Assert
+    expect(getAllByComponent(ClassCounter)).toHaveLength(1);
   });
 
   test("getAllByComponentName", async () => {
