@@ -155,7 +155,7 @@ describe("Example", () => {
     expect(getAllByComponent(ClassCounter)).toHaveLength(1);
   });
 
-  test("getAllByComponentName", async () => {
+  test("getAllByComponentName('div')", async () => {
     // Arrange
     const { getAllByComponentName } = customRender(<Example />, {
       wrapper: ({ children }) => (
