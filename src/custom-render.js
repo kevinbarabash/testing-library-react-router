@@ -2,7 +2,7 @@ import * as React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { render, queries } from "@testing-library/react";
 
-import { getElements } from "./fiber-utils.js";
+import { getComponentNodes } from "./fiber-utils.js";
 
 const RouteTracker = ({ historyRef, locationRef, allLocations, children }) => {
   const history = useHistory();
@@ -28,28 +28,28 @@ export const customRender = (children, options) => {
       getLocation: () => locationRef.current,
       getAllLocations: () => [...allLocations],
       getByComponentName: (screen, name) => {
-        const elements = getElements(container);
-        const element = elements.find(elem => elem.name === name);
+        const nodes = getComponentNodes(container);
+        const node = nodes.find(elem => elem.name === name);
         // TODO:
         // - throw if there's more than one result
         // - throw if there's no results
-        return element;
+        return node;
       },
       getByComponent: (screen, component) => {
-        const elements = getElements(container);
-        const element = elements.find(elem => elem.component === component);
+        const nodes = getComponentNodes(container);
+        const node = nodes.find(elem => elem.component === component);
         // TODO:
         // - throw if there's more than one result
         // - throw if there's no results
-        return element;
+        return node;
       },
       getAllByComponentName: (screen, name) => {
-        const elements = getElements(container);
-        return elements.filter(elem => elem.name === name);
+        const nodes = getComponentNodes(container);
+        return nodes.filter(elem => elem.name === name);
       },
       getAllByComponent: (screen, component) => {
-        const elements = getElements(container);
-        return elements.filter(elem => elem.component === component);
+        const nodes = getComponentNodes(container);
+        return nodes.filter(elem => elem.component === component);
       },
     },
   };
