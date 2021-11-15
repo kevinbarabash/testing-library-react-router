@@ -2,7 +2,7 @@ import * as React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { render, queries } from "@testing-library/react";
 
-import { getComponentNodes } from "./fiber-utils.js";
+import { getComponentNodes, getTreeStringRep } from "./fiber-utils.js";
 
 const RouteTracker = ({ historyRef, locationRef, allLocations, children }) => {
   const history = useHistory();
@@ -51,6 +51,10 @@ export const customRender = (children, options) => {
         const nodes = getComponentNodes(container);
         return nodes.filter(elem => elem.component === component);
       },
+      debugReact: (screen) => {
+        const stringRep = getTreeStringRep(container);
+        return stringRep;
+      }
     },
   };
 

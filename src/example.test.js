@@ -166,4 +166,36 @@ describe("Example", () => {
     // Assert
     expect(getAllByComponentName("div")).toHaveLength(2);
   });
+
+  test("debugReact() prints out the current render tree", async () => {
+    // Arrange
+    const { debugReact } = customRender(<Example />, {
+      wrapper: MemoryRouter,
+    });
+
+    // Act
+    userEvent.click(screen.queryByRole("button"));
+
+    // Assert
+    expect(debugReact()).toEqual(
+      `  MemoryRouter
+    Router
+      ContextProvider(Router)
+        ContextProvider(Router-History)
+          RouteTracker
+            Example
+              div
+                Switch
+                  ContextConsumer(Router)
+                    Route
+                      ContextConsumer(Router)
+                        ContextProvider(Router)
+                          div
+                            Counter
+                              div
+                              ClassCounter
+                                div
+`
+    );
+  });
 });

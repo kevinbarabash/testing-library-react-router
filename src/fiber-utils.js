@@ -20,38 +20,53 @@ const MemoComponent = 14;
 const SimpleMemoComponent = 15;
 const LazyComponent = 16;
 
-export function walk(node, callback) {
+export function walk(node, callback, path = []) {
     // TODO: handle more node types
     switch (node.tag) {
         case FunctionComponent:
         case ClassComponent: {
             const name = node.type.name;
             const component = node.type;
-            callback(node, name, component);
+            callback(node, path, name, component);
             break;
         }
         case HostComponent: {
             const name = node.type;
             const component = undefined;
-            callback(node, name, component);
+            callback(node, path, name, component);
             break;
         }
+        case ContextConsumer: {
+            const {displayName} = node.type._context;
+            const name = `ContextConsumer(${displayName})`;
+            callback(node, path, name);
+            break;
+        }
+        case ContextProvider: {
+            const {displayName} = node.type._context;
+            const name = `ContextProvider(${displayName})`;
+            callback(node, path, name);
+            break;
+        }
+        default: 
+            break;
     }
 
     if (node.child) {
-        walk(node.child, callback);
+        walk(node.child, callback, [...path, node]);
     }
     if (node.sibling) {
-        walk(node.sibling, callback);
+        walk(node.sibling, callback, [...path, node]);
     }
 }
 
+// TODO: skip non-component things like portals, fragments, contexts, etc.
 export const getComponentNodes = (container) => {
     const fiberRoot = container._reactRootContainer._internalRoot;
     const fiber = fiberRoot.current;
     const nodes = []; // React nodes
 
-    walk(fiber, (node, name, component) => {
+    walk(fiber, (node, path, name, component) => {
         const {children, ...props} = node.memoizedProps;
         let state = null;
 
@@ -76,4 +91,18 @@ export const getComponentNodes = (container) => {
     });
 
     return nodes;
+};
+
+export const getTreeStringRep = (container) => {
+    const fiberRoot = container._reactRootContainer._internalRoot;
+    const fiber = fiberRoot.current;
+    let result = "";
+
+    walk(fiber, (node, path, name, component) => {
+        const {children, ...props} = node.memoizedProps;
+        
+        result += "  ".repeat(path.length) + name + "\n";
+    });
+
+    return result;
 };
