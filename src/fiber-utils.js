@@ -69,6 +69,7 @@ export const getComponentNodes = (container) => {
     walk(fiber, (node, path, name, component) => {
         const {children, ...props} = node.memoizedProps;
         let state = null;
+        let instance = null;
 
         if (node.tag === FunctionComponent) {
             const memoizedStates = [];
@@ -83,10 +84,11 @@ export const getComponentNodes = (container) => {
             }
         } else if (node.tag === ClassComponent) {
             state = node.memoizedState;
+            instance = node.stateNode;
         }
 
         nodes.push({
-            name, props, state, component,
+            name, props, state, component, instance,
         });
     });
 

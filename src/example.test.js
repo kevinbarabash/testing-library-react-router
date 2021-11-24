@@ -144,15 +144,18 @@ describe("Example", () => {
 
   test("getByComponent(ClassCounter)", async () => {
     // Arrange
-    const { getAllByComponent } = customRender(<Example />, {
+    const { getByComponent } = customRender(<Example />, {
       wrapper: MemoryRouter,
     });
 
-    // Act
+    // Act 
     userEvent.click(screen.queryByRole("button"));
 
     // Assert
-    expect(getAllByComponent(ClassCounter)).toHaveLength(1);
+    const {component, instance} = getByComponent(ClassCounter);
+    // If we wanted to we could call methods on the instance.  This might
+    // be helpful in testing things like Perseus.
+    expect(instance).toBeInstanceOf(component);
   });
 
   test("getAllByComponentName('div')", async () => {
